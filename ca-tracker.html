@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My CA Tracker</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f5f3;--surf:#fff;--surf2:#e9ebe7;--line:#d6dad3;--tx:#1d211c;--mut:#666d62;--acc:#3d8467;--accbg:#cfe6db;--accfg:#173a2b;--ts:45%;--tl:88%;--tt:26%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0f0e;--surf:#171918;--surf2:#232624;--line:#2a2d2b;--tx:#ececea;--mut:#9a9f98;--acc:#7fb99d;--accbg:#7fb99d;--accfg:#0c1f16;--ts:32%;--tl:22%;--tt:80%}}
+:root[data-theme="dark"]{--bg:#0e0f0e;--surf:#171918;--surf2:#232624;--line:#2a2d2b;--tx:#ececea;--mut:#9a9f98;--acc:#7fb99d;--accbg:#7fb99d;--accfg:#0c1f16;--ts:32%;--tl:22%;--tt:80%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font:600 22px/1.2 Georgia,"Times New Roman",serif;margin:0}
+button,select,input,textarea{font:inherit;color:var(--tx)}
+button{cursor:pointer}
+.btn,.ib,.seg button,.pill{background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.btn:hover,.pill:hover,.ib:hover{background:var(--surf2)}
+.pri{background:var(--accbg);color:var(--accfg);border-color:transparent;font-weight:600}
+.pri:hover{background:var(--accbg);filter:brightness(1.07)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.seg{display:inline-flex;background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:5px 14px;color:var(--mut)}
+.seg button.on{background:var(--surf2);color:var(--tx);font-weight:600}
+#q{flex:1;min-width:200px;background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:9px 14px}
+select,input[type=date]{background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:6px 12px;max-width:170px}
+select.act{border-color:var(--acc)}
+.ib{padding:5px 11px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.tw{overflow-x:auto;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:980px}
+th{text-align:left;font-weight:500;color:var(--mut);padding:12px 10px}
+td{padding:12px 10px;vertical-align:top;border-top:1px solid var(--line)}
+tr.g td{background:var(--surf);border-top:0;padding:10px 12px;font-weight:600}
+tr.g .sub{font-weight:400;color:var(--mut)}
+tr.g .gb{float:right}
+.tag{display:inline-block;white-space:nowrap;padding:3px 11px;border-radius:999px;font-size:13px;margin:0 5px 5px 0;background:hsl(var(--h) var(--ts) var(--tl));color:hsl(var(--h) 65% var(--tt))}
+.tag.g{background:var(--surf2);color:var(--mut)}
+.title{font-weight:600}
+.meta{color:var(--mut);font-size:13px;margin-top:4px}
+tr.done .title{text-decoration:line-through;opacity:.55}
+.acts{white-space:nowrap;text-align:right}
+.acts button{background:none;border:0;color:var(--mut);padding:2px 6px;font-size:16px}
+.acts button:hover{color:var(--tx)}
+.star.on{color:#d9a53a}
+.lk{color:var(--acc);white-space:nowrap;font-weight:600}
+.lkin{width:150px;background:var(--bg);border:1px dashed var(--mut);border-radius:8px;padding:5px 8px;font-size:13px}
+.lkin:focus{border-style:solid;border-color:var(--acc)}
+.lkx{background:none;border:0;color:var(--mut);cursor:pointer}
+.tl{color:inherit;text-decoration:none}
+.tl:hover{text-decoration:underline;color:var(--acc)}
+input[data-act=done]{width:18px;height:18px;accent-color:var(--acc);cursor:pointer}
+.st{color:var(--mut);font-size:13px}
+.st.y{color:var(--acc);font-weight:600}
+.thumb{width:110px;max-height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block;margin-bottom:4px;background:var(--surf2)}
+.shotz{border:1px dashed var(--mut);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--mut);cursor:pointer;min-width:110px}
+.shotz:focus{border-style:solid;border-color:var(--acc);color:var(--tx)}
+.shotz:focus::after{content:"  Now press Ctrl+V";white-space:pre}
+.empty{padding:40px 12px;text-align:center;color:var(--mut)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 14px;z-index:20}
+.ov.show{display:flex}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:20px;width:100%;max-width:520px}
+.card h2{margin:0 0 14px;font:600 18px Georgia,serif}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+.card input:not([type=checkbox]),.card textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+textarea{min-height:200px;font:12px/1.4 Consolas,monospace}
+.chk{display:flex;gap:8px;align-items:center;color:var(--tx);font-size:15px}
+button.tag{border:0;cursor:pointer;opacity:.45}
+button.tag.sel{opacity:1;outline:2px solid var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>My CA Tracker</h1>
+  <div class="row" style="margin:0"><button class="btn" id="th">Dark mode</button><button class="btn" id="bk">Backup</button><button class="btn pri" id="add">Add article</button></div>
+</header>
+<div class="row">
+  <div class="seg" id="tabs"><button data-t="all" class="on">All CA</button><button data-t="must">Must Read</button></div>
+  <input id="q" type="search" placeholder="Search titles and topics">
+</div>
+<div class="row" id="filters">
+  <button class="pill" id="today">Today</button>
+  <button class="ib" id="prev" aria-label="Previous day">‹</button>
+  <input type="date" id="d" aria-label="Date">
+  <button class="ib" id="next" aria-label="Next day">›</button>
+  <button class="pill" id="alld">All dates</button>
+  <select id="fsub"></select><select id="ftop"></select><select id="fsrc"></select><select id="fpg"></select><select id="fpt"></select><select id="fst"><option value="">Studied or not</option><option value="y">Studied</option><option value="n">Not studied</option></select>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Studied</th><th style="width:34%">Article title and source</th><th>Subject</th><th>Topic</th><th>Link</th><th>Screenshot</th><th>Date</th><th></th></tr></thead>
+<tbody id="rows"></tbody></table></div>
+</div>
+
+<div class="ov" id="fo"><div class="card">
+  <h2 id="ft">Add article</h2>
+  <div class="two"><div><label>Date</label><input type="date" id="fdate"></div><div><label>Read time (min)</label><input type="number" id="fmin" min="1" value="5"></div></div>
+  <label>Article link <span id="lhint" style="color:var(--acc)"></span></label><input id="flink" type="url" placeholder="Paste the article link to auto-fill">
+  <label>Article title</label><input id="ftitle">
+  <div class="two"><div><label>Newspaper</label><input id="fsource" list="dsrc" value="The Hindu"></div><div><label>Page no</label><input id="fpage" type="number" min="1"></div></div>
+  <label>Page type (Editorial, Op-Ed, News…)</label><input id="fptype" list="dpt">
+  <label>Subjects (tap to select)</label><div id="fchips"></div><input id="fsubs" placeholder="Other subject (optional, comma separated)" style="margin-top:6px">
+  <label>Topics (comma separated)</label><input id="ftops" placeholder="Gig Economy, Labour">
+  <label class="chk" style="margin-top:14px"><input type="checkbox" id="fmust"> Must read</label>
+  <datalist id="dsrc"></datalist><datalist id="dpt"></datalist>
+  <div class="foot"><button class="btn" id="fcancel">Cancel</button><button class="btn pri" id="fsave">Save article</button></div>
+</div></div>
+
+<div class="ov" id="lb" style="align-items:center"><img id="lbi" alt="Screenshot" style="max-width:100%;max-height:100%;border-radius:8px"></div>
+<div id="toast" style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:8px 16px;display:none;z-index:30"></div>
+<div class="ov" id="bo"><div class="card">
+  <h2>Backup and restore</h2>
+  <label>Copy this text and keep it somewhere safe. To restore, paste a backup here and choose Restore.</label>
+  <textarea id="btxt" spellcheck="false"></textarea>
+  <div class="foot"><button class="btn" id="bclose">Close</button><button class="btn pri" id="brest">Restore from text</button></div>
+  <div class="meta" id="bmsg"></div>
+</div></div>
+
+<script>
+const KEY='ca-tracker-v1';
+const SUBJECTS=['Polity','Governance','Economy','Agriculture','Geography','History','Art & Culture','Environment','Science & Tech','International Relations','Internal Security','Social Issues','Disaster Management','Ethics'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY=iso(new Date());
+const shift=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const fmt=s=>new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+const sht=s=>new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
+const tag=(t,cls)=>'<span class="tag '+(cls||'')+'" style="--h:'+hue(t)+'">'+esc(t)+'</span>';
+const dur=m=>m>=60?Math.floor(m/60)+' hr'+(m%60?' '+m%60+' min':''):m+' min';
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+let data=[];
+try{data=JSON.parse(localStorage.getItem(KEY)||'null')||[]}catch(e){data=[]}
+if(!data.length){data=[
+ {id:uid(),date:TODAY,source:'The Hindu',pageNo:4,pageType:'',title:'Maid to order',mins:7,subjects:['Economy','Governance'],topics:['Digital Infrastructure','Gig Economy','Labour'],must:false,done:false},
+ {id:uid(),date:TODAY,source:'The Hindu',pageNo:6,pageType:'Editorial',title:'India and Poland have no conflict, but are pulled apart by other nations',mins:3,subjects:['International Relations'],topics:['Geopolitical Developments','India-EU','India-Poland'],must:true,done:false}]}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
+
+const S={tab:'all',date:TODAY,q:'',sub:'',top:'',src:'',pg:'',pt:'',st:'',pend:null,edit:null};
+const uniq=f=>[...new Set(data.flatMap(a=>[].concat(f(a))).filter(v=>v!==''&&v!=null))].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
+function fill(id,label,vals,cur){
+  const el=$(id);
+  el.innerHTML='<option value="">'+label+'</option>'+vals.map(v=>'<option'+(String(v)===cur?' selected':'')+'>'+esc(v)+'</option>').join('');
+  el.classList.toggle('act',!!cur);
+}
+function render(){
+  fill('fsub','Subject',[...new Set([...SUBJECTS,...uniq(a=>a.subjects)])].sort(),S.sub);
+  fill('ftop','Topic',uniq(a=>a.topics),S.top);
+  fill('fsrc','Newspaper',uniq(a=>a.source),S.src);
+  fill('fpg','Page no',uniq(a=>a.pageNo),S.pg);
+  fill('fpt','Page type',uniq(a=>a.pageType),S.pt);
+  $('d').value=S.date||'';$('fst').classList.toggle('act',!!S.st);
+  $('today').classList.toggle('pri',S.date===TODAY);
+  $('alld').classList.toggle('pri',!S.date);
+  const q=S.q.toLowerCase();
+  const list=data.filter(a=>(S.tab==='all'||a.must)&&(!S.date||a.date===S.date)&&(!S.sub||a.subjects.includes(S.sub))&&(!S.top||a.topics.includes(S.top))&&(!S.src||a.source===S.src)&&(!S.pg||String(a.pageNo)===S.pg)&&(!S.pt||a.pageType===S.pt)&&(!S.st||(S.st==='y')===!!a.done)&&(!q||(a.title+' '+a.topics.join(' ')+' '+a.subjects.join(' ')).toLowerCase().includes(q)))
+    .sort((a,b)=>b.date.localeCompare(a.date)||a.source.localeCompare(b.source)||(a.pageNo||0)-(b.pageNo||0));
+  if(!list.length){$('rows').innerHTML='<tr><td colspan="8" class="empty">No articles match. Clear a filter, or choose Add article to log one.</td></tr>';return}
+  let h='',cur='';
+  for(const d of [...new Set(list.map(a=>a.date))]){
+    const g=list.filter(a=>a.date===d),tot=g.reduce((s,a)=>s+(+a.mins||0),0),all=g.every(a=>a.done);
+    h+='<tr class="g"><td colspan="8">'+fmt(d)+' <span class="sub">· ~'+dur(tot)+' · '+g.length+' article'+(g.length>1?'s':'')+' · '+g.filter(a=>a.done).length+' studied</span><button class="btn pri gb" data-act="all" data-d="'+d+'">'+(all?'Clear studied':'Mark all studied')+'</button></td></tr>';
+    for(const a of g){
+      h+='<tr class="'+(a.done?'done':'')+'" data-id="'+a.id+'"><td><label class="chk" style="margin:0;white-space:nowrap"><input type="checkbox" data-act="done"'+(a.done?' checked':'')+' aria-label="Studied"> <span class="st'+(a.done?' y':'')+'">'+(a.done?'Studied':'Not studied')+'</span></label></td>'
+      +'<td><div class="title">'+(okl(a.link)?'<a class="tl" href="'+esc(a.link)+'" target="_blank" rel="noopener noreferrer">'+esc(a.title)+'</a>':esc(a.title))+'</div><div class="meta">'+tag(a.source,'')+(a.pageNo?'<span class="tag g">Page '+esc(a.pageNo)+'</span>':'')+(a.pageType?tag(a.pageType):'')+'~'+a.mins+' min read</div></td>'
+      
+      
+      
+      
+      
+      +'<td>'+a.subjects.map(t=>tag(t)).join('')+'</td><td>'+a.topics.map(t=>tag(t)).join('')+'</td>'
+      +'<td>'+(okl(a.link)?'<a class="lk" href="'+esc(a.link)+'" target="_blank" rel="noopener noreferrer">Open ↗</a> <button class="lkx" data-act="unlink" title="Change link">✎</button>':'<input class="lkin" data-lk placeholder="Paste link here" aria-label="Paste article link">')+'</td>'
+      +'<td>'+(a.shot?'<img class="thumb" data-sid="'+a.id+'" data-act="shot" alt="Screenshot" title="Click to enlarge"><button class="lkx" data-act="rmshot" title="Remove screenshot">✕</button>':'<div class="shotz" tabindex="0" data-shotz title="Click here, then press Ctrl+V to paste a screenshot">📷 Paste <label class="lkx" title="Choose an image file">📁<input type="file" accept="image/*" data-shotf hidden></label></div>')+'</td>'
+      +'<td style="white-space:nowrap">'+sht(a.date)+'</td>'
+      +'<td class="acts"><button class="star'+(a.must?' on':'')+'" data-act="star" title="Must read">'+(a.must?'★':'☆')+'</button><button data-act="edit" title="Edit">✎</button><button data-act="del" title="Delete">'+(S.pend===a.id?'Sure?':'✕')+'</button></td></tr>';
+    }
+  }
+  $('rows').innerHTML=h;hydrate();
+}
+const set=(k,v)=>{S[k]=v;S.pend=null;render()};
+$('tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));set('tab',t)};
+$('q').oninput=e=>set('q',e.target.value);
+$('today').onclick=()=>set('date',TODAY);
+$('alld').onclick=()=>set('date','');
+$('prev').onclick=()=>set('date',shift(S.date||TODAY,-1));
+$('next').onclick=()=>set('date',shift(S.date||TODAY,1));
+$('d').onchange=e=>set('date',e.target.value);
+[['fsub','sub'],['ftop','top'],['fsrc','src'],['fpg','pg'],['fpt','pt'],['fst','st']].forEach(([i,k])=>$(i).onchange=e=>set(k,e.target.value));
+
+$('rows').onclick=e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const act=b.dataset.act;
+  if(act==='all'){const g=data.filter(a=>a.date===b.dataset.d),all=g.every(a=>a.done);g.forEach(a=>a.done=!all);S.pend=null;save();return render()}
+  const id=b.closest('tr').dataset.id,a=data.find(x=>x.id===id);if(!a)return;
+  if(act==='done'){a.done=b.checked}
+  else if(act==='star'){a.must=!a.must}
+  else if(act==='unlink'){a.link=''}
+  else if(act==='shot'){return openShot(a.id)}
+  else if(act==='rmshot'){delShot(a.id).catch(()=>{});if(URLS[a.id]){URL.revokeObjectURL(URLS[a.id]);delete URLS[a.id]}a.shot=false}
+  else if(act==='edit'){return openForm(a)}
+  else if(act==='del'){if(S.pend===id){delShot(id).catch(()=>{});data=data.filter(x=>x.id!==id);S.pend=null}else{S.pend=id;return render()}}
+  S.pend=null;save();render();
+};
+
+function openForm(a){
+  S.edit=a?a.id:null;
+  $('ft').textContent=a?'Edit article':'Add article';
+  $('fdate').value=a?a.date:(S.date||TODAY);
+  $('fmin').value=a?a.mins:5;
+  $('ftitle').value=a?a.title:'';
+  $('flink').value=a?(a.link||''):'';
+  ['fsource','ftitle','fptype'].forEach(i=>$(i).dataset.t=a?'1':'');$('lhint').textContent='';
+  $('fsource').value=a?a.source:'The Hindu';
+  $('fpage').value=a?a.pageNo:'';
+  $('fptype').value=a?a.pageType:'';
+  const sel=new Set(a?a.subjects:[]);
+  $('fchips').innerHTML=[...new Set([...SUBJECTS,...uniq(x=>x.subjects),...sel])].map(s=>'<button type="button" class="tag'+(sel.has(s)?' sel':'')+'" style="--h:'+hue(s)+'" data-s="'+esc(s)+'">'+esc(s)+'</button>').join('');
+  $('fsubs').value='';
+  $('ftops').value=a?a.topics.join(', '):'';
+  $('fmust').checked=a?a.must:false;
+  $('dsrc').innerHTML=uniq(x=>x.source).map(v=>'<option value="'+esc(v)+'">').join('');
+  $('dpt').innerHTML=['Editorial','Op-Ed','News','Explained','Front page','Business'].map(v=>'<option value="'+v+'">').join('');
+  $('fo').classList.add('show');$('ftitle').focus();
+}
+const list=s=>s.split(/[,;]/).map(x=>x.trim()).filter(Boolean);
+const linkOf=s=>{s=s.trim();return s&&!/^https?:\/\//i.test(s)?'https://'+s:s};
+const okl=l=>/^https?:\/\//i.test(l||'');
+$('add').onclick=()=>openForm(null);
+$('fchips').onclick=e=>{const b=e.target.closest('[data-s]');if(b)b.classList.toggle('sel')};
+['fsource','ftitle','fptype'].forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.t='1'}));
+const HOSTS={'indianexpress.com':'The Indian Express','thehindu.com':'The Hindu','livemint.com':'Mint','economictimes.indiatimes.com':'The Economic Times','timesofindia.indiatimes.com':'The Times of India','hindustantimes.com':'Hindustan Times','business-standard.com':'Business Standard','financialexpress.com':'Financial Express','theprint.in':'ThePrint','pib.gov.in':'PIB'};
+function guess(){
+  let u;try{u=new URL(linkOf($('flink').value))}catch(e){$('lhint').textContent='';return}
+  const h=u.hostname.replace(/^www\./,''),p=u.pathname.toLowerCase();
+  const m=Object.entries(HOSTS).find(([k])=>h===k||h.endsWith('.'+k));
+  const pt=/\/editorial/.test(p)?'Editorial':/\/op-?ed/.test(p)?'Op-Ed':/\/opinion/.test(p)?'Opinion':/\/explained/.test(p)?'Explained':'';
+  const seg=u.pathname.split('/').filter(Boolean).map(s=>s.replace(/\.(ece|html?|cms)$/i,'').replace(/-?\d{6,}$/,'')).sort((a,b)=>b.split('-').length-a.split('-').length)[0]||'';
+  const t=seg.split('-').filter(Boolean).join(' ');
+  if(!$('fsource').dataset.t)$('fsource').value=m?m[1]:h;
+  if(pt&&!$('fptype').dataset.t)$('fptype').value=pt;
+  if(t&&!$('ftitle').dataset.t)$('ftitle').value=t.charAt(0).toUpperCase()+t.slice(1);
+  $('lhint').textContent='· auto-filled, check the title';
+}
+$('flink').addEventListener('input',guess);
+function setLink(inp){const tr=inp.closest('tr');if(!tr)return;const a=data.find(x=>x.id===tr.dataset.id),v=linkOf(inp.value);if(a&&v){a.link=v;save();render()}}
+$('rows').addEventListener('change',e=>{if(e.target.dataset.lk!==undefined)setLink(e.target)});
+$('rows').addEventListener('paste',e=>{if(e.target.dataset.lk===undefined)return;const t=e.target;setTimeout(()=>setLink(t),0)});
+$('fcancel').onclick=()=>$('fo').classList.remove('show');
+$('fsave').onclick=()=>{
+  const title=$('ftitle').value.trim(),date=$('fdate').value;
+  if(!title||!date){$('ftitle').focus();return}
+  const o={date,title,link:linkOf($('flink').value),mins:Math.max(1,+$('fmin').value||5),source:$('fsource').value.trim()||'Unknown',pageNo:$('fpage').value?+$('fpage').value:'',pageType:$('fptype').value.trim(),subjects:[...[...$('fchips').querySelectorAll('.sel')].map(b=>b.dataset.s),...list($('fsubs').value)],topics:list($('ftops').value),must:$('fmust').checked};
+  if(S.edit){Object.assign(data.find(x=>x.id===S.edit),o)}else{data.push({id:uid(),done:false,...o})}
+  save();S.date=S.date&&S.date!==date?date:S.date;$('fo').classList.remove('show');render();
+};
+$('bk').onclick=()=>{$('btxt').value=JSON.stringify(data);$('bmsg').textContent='';$('bo').classList.add('show')};
+$('bclose').onclick=()=>$('bo').classList.remove('show');
+$('brest').onclick=()=>{
+  try{const v=JSON.parse($('btxt').value);if(!Array.isArray(v))throw 0;data=v.map(a=>({id:a.id||uid(),date:a.date,source:a.source||'',pageNo:a.pageNo||'',pageType:a.pageType||'',title:a.title||'',link:a.link||'',shot:!!a.shot,mins:a.mins||5,subjects:a.subjects||[],topics:a.topics||[],must:!!a.must,done:!!a.done}));save();render();$('bmsg').textContent='Restored '+data.length+' articles.'}
+  catch(e){$('bmsg').textContent='That text is not a valid backup.'}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.ov').forEach(o=>o.classList.remove('show'))});
+let DB;
+const idb=()=>DB||(DB=new Promise((res,rej)=>{try{const r=indexedDB.open('ca-shots',1);r.onupgradeneeded=()=>r.result.createObjectStore('s');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
+const idbOp=(mode,fn)=>idb().then(db=>new Promise((res,rej)=>{const t=db.transaction('s',mode);const rq=fn(t.objectStore('s'));t.oncomplete=()=>res(rq.result);t.onerror=()=>rej(t.error)}));
+const putShot=(id,b)=>idbOp('readwrite',s=>s.put(b,id)),getShot=id=>idbOp('readonly',s=>s.get(id)),delShot=id=>idbOp('readwrite',s=>s.delete(id));
+const URLS={};
+const flash=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},2600)};
+async function shrink(f){const bm=await createImageBitmap(f),k=Math.min(1,1400/bm.width),c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.82))}
+async function addShot(id,f){const a=data.find(x=>x.id===id);if(!a||!f)return;try{const b=await shrink(f);await putShot(id,b);if(URLS[id]){URL.revokeObjectURL(URLS[id]);delete URLS[id]}a.shot=true;save();render();flash('Screenshot saved')}catch(e){flash('Could not save this image')}}
+async function hydrate(){for(const im of document.querySelectorAll('img[data-sid]')){const id=im.dataset.sid;try{if(!URLS[id]){const b=await getShot(id);if(!b){im.replaceWith(Object.assign(document.createElement('span'),{className:'meta',textContent:'Image not on this device'}));continue}URLS[id]=URL.createObjectURL(b)}im.src=URLS[id]}catch(e){}}}
+async function openShot(id){try{if(!URLS[id]){const b=await getShot(id);if(!b)return;URLS[id]=URL.createObjectURL(b)}$('lbi').src=URLS[id];$('lb').classList.add('show')}catch(e){}}
+$('lb').onclick=()=>$('lb').classList.remove('show');
+$('rows').addEventListener('change',e=>{if(e.target.dataset.shotf!==undefined){const tr=e.target.closest('tr');if(tr)addShot(tr.dataset.id,e.target.files[0])}});
+document.addEventListener('paste',e=>{const z=document.activeElement&&document.activeElement.closest('[data-shotz]');if(!z)return;const f=[...(e.clipboardData?e.clipboardData.files:[])].find(x=>x.type.startsWith('image/'));if(!f)return;e.preventDefault();addShot(z.closest('tr').dataset.id,f)});
+let theme=null;try{theme=localStorage.getItem('ca-theme')}catch(e){}
+function applyTheme(){const t=theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;$('th').textContent=t==='dark'?'Light mode':'Dark mode'}
+$('th').onclick=()=>{theme=document.documentElement.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('ca-theme',theme)}catch(e){}applyTheme()};
+applyTheme();
+render();
+</script>
+</body>
+</html>
